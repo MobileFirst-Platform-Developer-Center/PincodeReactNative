@@ -12,7 +12,8 @@
   "dependencies": {
     "react": "16.11.0",
     "react-native": "0.62.2",
-    "react-native-ibm-mobilefirst": "^8.0.2020032412"
+    "react-native-ibm-mobilefirst": "^8.0.2020032412",
+    "react-native-really-awesome-button": "^1.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

@@ -1,114 +1,173 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import React, {Component} from 'react';
+import {StyleSheet, Text, View, Alert} from 'react-native';
+import {WLResourceRequest, WLClient} from 'react-native-ibm-mobilefirst';
+import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 
-import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
+const securityCheckName = 'PinCodeAttempts';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+export class PinCodeChallengeHandler {
+  handleChallenge = challenge => {
+    var msg = '';
 
-const App: () => React$Node = () => {
-  return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
+    // Create the title string for the prompt
+    if (challenge.errorMsg !== null) {
+      msg = challenge.errorMsg + '\n';
+    } else {
+      msg = 'This data requires a PIN code.\n';
+    }
+    msg += 'Remaining attempts: ' + challenge.remainingAttempts;
+
+    Alert.prompt('Alert', msg, [
+      {
+        text: 'Cancel',
+        onPress: () => WLClient.cancelChallenge(securityCheckName),
+        style: 'cancel',
+      },
+      {
+        text: 'OK',
+        onPress: pin =>
+          WLClient.submitChallengeAnswer(securityCheckName, {pin: pin}),
+      },
+    ]);
+  };
+
+  handleSuccess = success => {};
+
+  handleFailure = error => {
+    console.log('Challenge Handler Failure!');
+    if (error.failure !== null && error.failure !== undefined) {
+      alert(error.failure);
+    } else {
+      alert('Unknown error');
+    }
+  };
+}
+
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      result: '',
+      promptVisible: false,
+    };
+
+    // operations
+    this.getBalance = this.getBalance.bind(this);
+  }
+
+  Class;
+
+  async componentDidMount() {
+    // register challenge handler
+    var challengeHandler = new PinCodeChallengeHandler();
+    WLClient.registerChallengeHandler(challengeHandler, securityCheckName);
+  }
+
+  getBalance(done) {
+    var resourceRequest = new WLResourceRequest(
+      '/adapters/ResourceAdapter/balance',
+      WLResourceRequest.GET,
+    );
+    resourceRequest.send().then(
+      response => {
+        console.log('resourceRequest.send success: ' + response.responseText);
+        this.setState({
+          result:
+            'SUCCESS' + '\n\n' + 'Total Balance : ' + response.responseText,
+        });
+        done();
+      },
+      error => {
+        console.log('resourceRequest.send failure: ' + JSON.stringify(error));
+        this.setState({
+          result: 'FAILURE' + '\n\n' + 'Failed to fetch Balance',
+        });
+        done();
+      },
+    );
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Pincode</Text>
+        <View style={styles.testItemsContainer}>
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              // justifyContent: "center",
+              width: '100%',
+              padding: 10,
+            }}>
+            <AwesomeButton
+              type="primary"
+              progress
+              stretch
+              onPress={done => {
+                this.getBalance(done);
+              }}>
+              Get Balance
+            </AwesomeButton>
           </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
-  );
-};
+        </View>
+        <View style={styles.testResultsContainer}>
+          <Text
+            style={{
+              color: 'black',
+              fontSize: 20,
+              textAlign: 'center',
+              marginVertical: 5,
+            }}>
+            RESULTS
+          </Text>
+          <Text style={{color: 'black', fontSize: 16, margin: 10}}>
+            {this.state.result}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    paddingTop: 10,
+    backgroundColor: '#ededed',
   },
-  engine: {
-    position: 'absolute',
-    right: 0,
+  testItemsContainer: {
+    marginTop: 30,
+    height: '60%',
+    width: '100%',
   },
-  body: {
-    backgroundColor: Colors.white,
+  testResultsContainer: {
+    flex: 1,
+    height: '100%',
+    width: '100%',
+    backgroundColor: '#bfbfbf',
   },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  title: {
+    fontSize: 20,
+    textAlign: 'center',
+    marginTop: 30,
+    borderBottomColor: 'gray',
+    borderBottomWidth: 1,
+    paddingTop: 30,
+    paddingBottom: 10,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
+  buttonStyle: {
+    width: '100%',
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
+  buttonContainer: {
+    margin: 5,
   },
-  highlight: {
-    fontWeight: '700',
+  button: {
+    marginBottom: 10,
+    fontWeight: '500',
   },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+  charan: {
+    alignItems: 'center',
   },
 });
-
-export default App;
