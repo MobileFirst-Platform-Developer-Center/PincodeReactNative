@@ -16,7 +16,7 @@ https://mobilefirstplatform.ibmcloud.com/tutorials/en/foundation/8.0/authenticat
 
 3. From a command-line window, navigate to the platforms's root folder (either iOS or Android)  and run the commands:
  - `mfpdev app register` - to register the application.
- - `pod install` - to install cocoapod dependencies [This step only required for iOS].
+ - `pod install` - to install cocoapod dependencies [ **Note**  : This step only required for iOS].
  
 4. From the command-line window, navigate to the project's roots folder and run the command:
  - `react-native run-ios` or `react-native run-android` - to run the application in an iOS Emulator or Android Simulator.
