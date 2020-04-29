@@ -18,6 +18,7 @@ https://mobilefirstplatform.ibmcloud.com/tutorials/en/foundation/8.0/authenticat
 
 3. From a command-line window, navigate to the platforms's root folder (either iOS or Android)  and run the commands:
  - `mfpdev app register` - to register the application.
+ - `mfpdev app push` - to map the `accessRestricted` scope to the `PinCodeAttempts` security check.
  - `pod install` - to install cocoapod dependencies [ **Note**  : This step only required for iOS].
  
 4. From the command-line window, navigate to the project's roots folder and run the command:
