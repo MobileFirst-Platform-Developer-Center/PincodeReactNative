@@ -1,4 +1,6 @@
-## PinCodeCordova
+IBM MobileFirst Platform Foundation
+===
+## PinCodeReactNative
 A sample application demonstrating use of the CredentialsValidation Security Check.
 
 ### Tutorials
