@@ -27,7 +27,6 @@ export class PinCodeChallengeHandler {
         onPress: pin =>
           WLClient.submitChallengeAnswer(securityCheckName, {pin: pin}),
       },
-      s,
     ]);
   };
 
