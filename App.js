@@ -6,9 +6,9 @@ import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 const securityCheckName = 'PinCodeAttempts';
 
 export class PinCodeChallengeHandler {
+  // Handle Challenge
   handleChallenge = challenge => {
     var msg = '';
-
     // Create the title string for the prompt
     if (challenge.errorMsg !== null) {
       msg = challenge.errorMsg + '\n';
@@ -16,7 +16,6 @@ export class PinCodeChallengeHandler {
       msg = 'This data requires a PIN code.\n';
     }
     msg += 'Remaining attempts: ' + challenge.remainingAttempts;
-
     Alert.prompt('Alert', msg, [
       {
         text: 'Cancel',
@@ -28,11 +27,14 @@ export class PinCodeChallengeHandler {
         onPress: pin =>
           WLClient.submitChallengeAnswer(securityCheckName, {pin: pin}),
       },
+      s,
     ]);
   };
 
+  // Handle Success
   handleSuccess = success => {};
 
+  //Handle Failure
   handleFailure = error => {
     console.log('Challenge Handler Failure!');
     if (error.failure !== null && error.failure !== undefined) {
@@ -48,14 +50,10 @@ export default class App extends Component {
     super(props);
     this.state = {
       result: '',
-      promptVisible: false,
     };
 
-    // operations
     this.getBalance = this.getBalance.bind(this);
   }
-
-  Class;
 
   async componentDidMount() {
     // register challenge handler
